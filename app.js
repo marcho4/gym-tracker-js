@@ -199,12 +199,123 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
                 elem.addEventListener("click", () => {
                     console.log("Нажата дата с тренировкой:", formattedDate);
                     showDayContainer();
+                    renderDay(formattedDate);
                 });
             }
             calendar.append(elem);
         }
 
     }
+
+    // Функция для отрисовки карточки дня с текущими тренировками
+    const renderDay = (day) => {
+        // Получение всех тренировок из локал стораджа
+        const currTrainings = JSON.parse(localStorage.getItem(calendarId));
+
+        const dayCard = document.getElementById(dayId);
+
+        dayCard.innerHTML = "";
+
+        console.log(dayCard);
+
+        const dayHeader = createElement("div", {
+            classes: ["day-header"],
+            innerHTML: day,
+        })
+
+        dayCard.append(dayHeader);
+
+        const closeBtn = document.createElement("button");
+        closeBtn.classList.add("day-close-button");
+        closeBtn.innerHTML = "Закрыть"
+        closeBtn.addEventListener("click", () => {hideDayContainer()});
+
+
+        // Фильтрация по дате из функции
+        let toShow = [];
+        currTrainings.forEach((training) => {
+            if (training.data === day) {
+                toShow.push(training);
+            }
+        })
+
+        // Создание элемента тренировки для каждой тренировки конкретного дня
+        toShow.forEach((training) => {
+            const trainingElem = renderTraining(training);
+            dayCard.append(trainingElem)
+        })
+
+        dayCard.append(closeBtn);
+    }
+
+    // Функция для отрисовки прямоугольника из которого будет выскакивать конкретная тренировка
+    const renderTraining = (training) => {
+        const wrapper = createElement("div");
+        const mainContainer = createElement("div", {classes: ["training"]});
+        const label = createElement(
+            "div", {classes: ["training-label"], innerHTML: "Тренировка"}
+        )
+        const showTableButton = createElement("div");
+        mainContainer.append(label);
+        mainContainer.append(showTableButton);
+
+        wrapper.append(mainContainer);
+
+        const table = createElement("table");
+        
+        table.innerHTML = "";
+
+        const tableHeader = createElement("thead", {
+            classes: ["exercise-header-container"]
+        });
+
+        const headerRow = document.createElement("tr");
+        tableHeader.append(headerRow);
+
+        const tableBody = createElement("tbody", {classes: ["table-body"]});
+
+        table.append(tableHeader);
+        table.append(tableBody);
+
+        const headers = ["Упражнение", "Вес", "Повторения", "Подходы"];
+        headers.forEach(header => {
+            const th = createElement("th", {
+                classes: ["exercise-header"],
+                innerHTML: header
+            });
+            headerRow.append(th);
+        });
+
+
+        training.exercises.forEach(exercise => {
+            const row = createElement("tr");
+
+            const exerciseCell = createElement("td", {
+                classes: ["exercise-row"],
+                innerHTML: exercise.exercise
+            });
+            const weightCell = createElement("td", {
+                classes: ["exercise-row"],
+                innerHTML: exercise.weight
+            });
+            const repsCell = createElement("td", {
+                classes: ["exercise-row"],
+                innerHTML: exercise.reps
+            });
+            const setsCell = createElement("td", {
+                classes: ["exercise-row"],
+                innerHTML: exercise.sets
+            });
+
+            row.append(exerciseCell, weightCell, repsCell, setsCell);
+            tableBody.append(row);
+        });
+
+        wrapper.append(table)
+        return wrapper;
+    }
+
+
 
     // Инициализация таблицы текущей тренировки
     if (!localStorage.getItem(tableId)) {
@@ -454,36 +565,9 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
 
     }
 
-    function generateTraining(training) {
-        const mainElem = document.createElement("div", {
-            classes: ["training-day"]
-        });
-
-
-        for (let i = 0; i < training.exercises.length; i++) {
-
-        }
-        return undefined;
-    }
 
     // функция для показа тренировки в какой-то день
     const showTrainings = () => {
-        // Получение всех тренировок из локал стораджа
-        const currTrainings = JSON.parse(localStorage.getItem(calendarId));
-
-        // Фильтрация по дате из функции
-        let toShow = [];
-        currTrainings.forEach((training) => {
-            if (training.data === day) {
-                toShow.push(training);
-            }
-        })
-
-        // Создание элемента тренировки для каждой тренировки конкретного дня
-        toShow.forEach((training) => {
-            const trainingElem = generateTraining(training);
-        })
-
 
         const dayContainer = createElement("div", {
             classes: ["day-container"],
@@ -495,12 +579,7 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         dayContainer.style.display = "none";
 
 
-        // const dayHeader = createElement("div", {
-        //     classes: ["day-header"],
-        //     innerHTML:,
-        //     attributes: {
-        //     }
-        // })
+        
 
         const closeBtn = document.createElement("button");
         closeBtn.classList.add("close-btn");
@@ -508,9 +587,9 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         closeBtn.addEventListener("click", () => {hideDayContainer()});
 
         dayContainer.append(closeBtn);
-
-        renderDayContainer("");
         wrapper.append(dayContainer);
+        renderDay("2025-02-10");
+        
     }
 
     const showDayContainer = () => {
@@ -535,14 +614,7 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
     showCalendarContainer();
     showMenuContainer();
     showCurrContainer();
-    const day = createElement("div", {
-        classes: ["day-container"],
-        attributes: {
-            id: dayId
-        },
-        innerHTML: "some"
-    });
-    day.style.display = "none";
+    showTrainings();
 
 
 
