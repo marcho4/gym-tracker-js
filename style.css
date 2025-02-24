@@ -44,6 +44,7 @@ body {
 
 .calendar-container,
 .current-training,
+.day-container,
 .menu {
     background: var(--bg-color);
     border-radius: 10px;
@@ -233,3 +234,4 @@ body {
 .table-container {
     width: 100%;
 }
+

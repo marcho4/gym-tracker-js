@@ -195,7 +195,11 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
 
             if (workoutDates.has(formattedDate)) {
                 elem.classList.add("workout-day")
-                // elem(elem => {console.log("Workout Day:", elem);});
+                // Добавляем обработчик клика
+                elem.addEventListener("click", () => {
+                    console.log("Нажата дата с тренировкой:", formattedDate);
+                    showDayContainer();
+                });
             }
             calendar.append(elem);
         }
@@ -463,7 +467,7 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
     }
 
     // функция для показа тренировки в какой-то день
-    const showTrainings = (day) => {
+    const showTrainings = () => {
         // Получение всех тренировок из локал стораджа
         const currTrainings = JSON.parse(localStorage.getItem(calendarId));
 
@@ -485,26 +489,38 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
             classes: ["day-container"],
             attributes: {
                 id: dayId
-            }
+            },
+            innerHTML: "some"
         })
+        dayContainer.style.display = "none";
 
-        const dayHeader = createElement("div", {
-            classes: ["day-header"],
-            innerHTML: day,
-            attributes: {
 
-            }
-        })
+        // const dayHeader = createElement("div", {
+        //     classes: ["day-header"],
+        //     innerHTML:,
+        //     attributes: {
+        //     }
+        // })
+
+        const closeBtn = document.createElement("button");
+        closeBtn.classList.add("close-btn");
+        closeBtn.innerHTML = "Close"
+        closeBtn.addEventListener("click", () => {hideDayContainer()});
+
+        dayContainer.append(closeBtn);
+
+        renderDayContainer("");
+        wrapper.append(dayContainer);
     }
 
     const showDayContainer = () => {
         const elem = document.getElementById(dayId);
-        elem.style.display = "none";
+        elem.style.display = "flex";
     }
 
     const hideDayContainer = () => {
         const elem = document.getElementById(dayId);
-        elem.style.display = "flex";
+        elem.style.display = "none";
     }
 
     const addCss = (css) => {
@@ -519,5 +535,16 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
     showCalendarContainer();
     showMenuContainer();
     showCurrContainer();
+    const day = createElement("div", {
+        classes: ["day-container"],
+        attributes: {
+            id: dayId
+        },
+        innerHTML: "some"
+    });
+    day.style.display = "none";
+
+
+
     addCss(cssFile)
 }
