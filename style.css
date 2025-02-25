@@ -1,19 +1,21 @@
 :root {
     --primary-color: #29339B;
-    --secondary-color: #5059C7;
+    --secondary-color: ;
     --accent-color: #8FCB9B;
     --accent-hover: #5B9279;
     --bg-color: #EAE6E5;
     --text-color: #12130F;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --font: Gill Sans;
 }
 
 body {
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+    padding: 25px;
 }
 
 .fitness-tracker {
-    max-width: 1400px;
+    font-family: var(--font), sans-serif;
+    container-type: inline-size;
     margin: 100px auto;
     display: grid;
     gap: 20px;
@@ -33,6 +35,7 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
 
 .current-training-text,
 .training-text {
@@ -244,11 +247,13 @@ body {
     min-width: 350px;
     justify-content: center;
     align-items: center;
+    gap: 10px;
 }
 
 .day-header {
     text-align: center;
     font-size: 24px;
+    font-weight: bold;
 }
 
 .day-close-button {
@@ -261,8 +266,41 @@ body {
     font-size: medium;
     border: none;
     transition: background 0.2s, color 0.2s;
+    margin-top: 10px;
 }
 
 .day-close-button:hover {
     background: var(--secondary-color);
+}
+
+.training {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.day-wrapper {
+    width: 100%;
+}
+
+.day-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.training-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.hidden {
+    display: none;
 }

@@ -7,8 +7,16 @@
     <script src="app.js"></script>
     <script>
         window.addEventListener("load", () => {
-            appFitnessTracker("fitnessTracker", {cssFile: "style.css"});
-            appFitnessTracker("fitnessTracker2", {cssFile: "style.css"});
+            appFitnessTracker("fitnessTracker", {
+                cssFile: "style.css",
+                accentColor: "#0012ff",
+                fontFamily: "Arial"
+            });
+            appFitnessTracker("fitnessTracker2", {
+                cssFile: "style.css",
+                accentColor: "#47009f",
+                maxWidth: "100px"
+            });
         })
     </script>
 </head>

@@ -1,5 +1,22 @@
-const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
+const appFitnessTracker = async (containerId, {
+    cssFile = "style.css",
+    accentColor = "#29339B",
+    maxWidth = "2000px",
+    fontFamily = `Gill Sans`,
+}) => {
     const container = document.getElementById(containerId);
+
+    container.style.setProperty('--primary-color', accentColor);
+    container.style.setProperty('--font', fontFamily);
+
+    // конвертация hex в rgba, чтобы задать прозрачность для второстепенного цвета
+    function rgbToHex(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    container.style.setProperty('--secondary-color', rgbToHex(accentColor, 0.65));
 
     const calendarId = containerId + "-calendar";
     const tableId = containerId + "-table";
@@ -9,35 +26,27 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
     const calendarWrapperId = containerId + "-calendar-wrapper";
     const dayId = containerId + "-day";
 
+    // Считывание конфига из Json (необходим локальный сервер, иначе ошибка CORS
+    const config = await fetch('config.json').then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка: ' + response.status);
+            }
+            return response.json();
+        })
+        .catch(error => console.error('Ошибка при получении данных:', error));
+
+
+    const weekdays = config.weekdays;
+    const monthNames = config.months;
+    const options = []
+    config.options.forEach(item => {const opt = new Option(item, item); options.push(opt); });
 
     // Устанавливаю текущую дату для показа в календаре при каждой перезагрзузке
     localStorage.setItem("month-" + containerId, (new Date().getMonth() + 1).toString());
     localStorage.setItem("year-" + containerId, (new Date().getFullYear()).toString());
 
-    const options = [
-        new Option("Жим лежа", "Жим лежа"),
-        new Option("Приседания со штангой", "Приседания со штангой"),
-        new Option("Становая тяга", "Становая тяга"),
-        new Option("Жим над головой", "Жим над головой"),
-        new Option("Подтягивания", "Подтягивания"),
-        new Option("Жим штанги лежа узким хватом", "Жим штанги лежа узким хватом"),
-        new Option("Рывок", "Рывок"),
-        new Option("Приседания с гирей", "Приседания с гирей"),
-        new Option("Жим ногами", "Жим ногами"),
-        new Option("Армейский жим", "Армейский жим"),
-        new Option("Тяга штанги к подбородку", "Тяга штанги к подбородку"),
-        new Option("Разгибание трицепсов", "Разгибание трицепсов"),
-        new Option("Бицепс-молоточки", "Бицепс-молоточки"),
-        new Option("Сгибание бицепса", "Сгибание бицепса"),
-        new Option("Сгибание бицепса в скамье под наклоном", "Сгибание бицепса в скамье под наклоном"),
-        new Option("Жим лежа под углом", "Жим лежа под углом"),
-    ];
-    const weekdays = ["Пн", "Вт", "Ср", "Чт" , "Пт", "Сб", "Вск"];
-    const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август",
-        "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-
     // Вспомогательная функция для создания элемента
-    const createElement = (tag, { classes = [], attributes = {}, innerHTML = "" } = {}) => {
+    const createElement = (tag, {classes = [], attributes = {}, innerHTML = ""} = {}) => {
         const el = document.createElement(tag);
         if (classes.length) {
             el.classList.add(...classes);
@@ -216,11 +225,18 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
 
         dayCard.innerHTML = "";
 
-        console.log(dayCard);
+        const day_to_string = (day) => {
+            const [year, month, date] = day.split('-');
+            const monthNames = [
+                "января", "февраля", "марта", "апреля", "мая", "июня",
+                "июля", "августа", "сентября", "октября", "ноября", "декабря"
+            ];
+            return `${parseInt(date)} ${monthNames[parseInt(month) - 1]} ${year}`;
+        }
 
         const dayHeader = createElement("div", {
             classes: ["day-header"],
-            innerHTML: day,
+            innerHTML: day_to_string(day),
         })
 
         dayCard.append(dayHeader);
@@ -228,7 +244,9 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         const closeBtn = document.createElement("button");
         closeBtn.classList.add("day-close-button");
         closeBtn.innerHTML = "Закрыть"
-        closeBtn.addEventListener("click", () => {hideDayContainer()});
+        closeBtn.addEventListener("click", () => {
+            hideDayContainer()
+        });
 
 
         // Фильтрация по дате из функции
@@ -250,19 +268,39 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
 
     // Функция для отрисовки прямоугольника из которого будет выскакивать конкретная тренировка
     const renderTraining = (training) => {
-        const wrapper = createElement("div");
+        const wrapper = createElement("div", {classes: ["day-wrapper"]});
         const mainContainer = createElement("div", {classes: ["training"]});
         const label = createElement(
             "div", {classes: ["training-label"], innerHTML: "Тренировка"}
         )
-        const showTableButton = createElement("div");
+        const showTableButton = createElement("button", {
+            classes: ["toggle-button"],
+            innerHTML: `&#9660`
+        });
         mainContainer.append(label);
         mainContainer.append(showTableButton);
 
         wrapper.append(mainContainer);
 
-        const table = createElement("table");
-        
+        const table = createElement("table", {
+            classes: ["day-table", "hidden"],
+            attributes: {
+                id: containerId + "-day-table"
+            }
+        });
+
+        showTableButton.addEventListener("click", () => {
+            table.classList.toggle("hidden");
+
+            if (table.classList.contains("hidden")) {
+                showTableButton.innerHTML = "&#9660;";
+            } else {
+                showTableButton.innerHTML = "&#9650;";
+            }
+        });
+
+        wrapper.append(table)
+
         table.innerHTML = "";
 
         const tableHeader = createElement("thead", {
@@ -311,10 +349,9 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
             tableBody.append(row);
         });
 
-        wrapper.append(table)
+
         return wrapper;
     }
-
 
 
     // Инициализация таблицы текущей тренировки
@@ -327,12 +364,15 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         localStorage.setItem(calendarId, JSON.stringify([]));
     }
 
+    // Элемент-обертка для всего приложения
     const wrapper = createElement("div", {
         classes: ["fitness-tracker"]
     });
 
     container.append(wrapper);
+    container.style.maxWidth = maxWidth;
 
+    // Функция для показа календаря
     const showCalendarContainer = () => {
         const calendarContainer = createElement("div", {
             classes: ["calendar-container"],
@@ -417,7 +457,7 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
 
     const showMenuContainer = () => {
         // Обертка всей формы в отдельный элемент
-        const menu = createElement("div", { classes: ["menu"] });
+        const menu = createElement("div", {classes: ["menu"]});
 
         // Добавление заголовка для понятности
         const trainingText = createElement("div", {
@@ -427,7 +467,7 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         menu.append(trainingText);
 
         // Создание формы для сбора информации о выполненом упражнии внутри тренировки
-        const exerciseForm = createElement("form", { classes: ["exercise-form"] });
+        const exerciseForm = createElement("form", {classes: ["exercise-form"]});
         menu.append(exerciseForm);
 
         const exerciseCont = createElement("div", {
@@ -464,7 +504,7 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         // Кнопка отправки
         const submit = createElement("input", {
             classes: ["submit-button"],
-            attributes: { type: "submit", value: "Добавить упражнение" }
+            attributes: {type: "submit", value: "Добавить упражнение"}
         });
 
         exerciseForm.append(submit);
@@ -479,17 +519,24 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
                 data[key] = value;
             });
 
-            if (data.weight >= 200) {
-                alert("Вы долбоеб столько жать")
+            // Валидация формы
+            if (data.reps < 1) {
+                alert("Нужно хотя бы 1 повторение, меньше = тюбик")
                 return;
             }
-
+            if (data.sets < 1) {
+                alert("Нужен хотя бы 1 подход, меньше = тюбик")
+                return;
+            }
+            if (data.weight >= 500) {
+                alert("Вы ненормальный столько жать? Введите вес меньше 500")
+                return;
+            }
             if (data.weight < 0) {
-                alert("Вы долбоеб?")
+                alert("Вес должен быть положительным")
                 return;
             }
 
-            console.log("Полученные данные формы:", data);
 
 
             const storedData = localStorage.getItem(tableId);
@@ -543,15 +590,22 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         submitButton.onclick = () => {
             const trainingArray = JSON.parse(localStorage.getItem(calendarId));
 
+
+            const currTraining = JSON.parse(localStorage.getItem(tableId));
+
+            if (currTraining.length === 0) {
+                alert("В тренировке должно быть хотя бы 1 упражнение")
+                return;
+            }
+
             const currTrainingData = {
                 data: new Date().toISOString().split('T')[0],
-                exercises: JSON.parse(localStorage.getItem(tableId))
+                exercises: currTraining
             };
 
             trainingArray.push(currTrainingData);
 
             localStorage.setItem(calendarId, JSON.stringify(trainingArray));
-            console.log("Данные для календаря: ", trainingArray);
 
             // Очистка текущей тренировки
             localStorage.setItem(tableId, JSON.stringify([]));
@@ -562,7 +616,6 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         };
 
         currentTrainingContainer.append(submitButton);
-
     }
 
 
@@ -579,17 +632,17 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
         dayContainer.style.display = "none";
 
 
-        
-
         const closeBtn = document.createElement("button");
         closeBtn.classList.add("close-btn");
         closeBtn.innerHTML = "Close"
-        closeBtn.addEventListener("click", () => {hideDayContainer()});
+        closeBtn.addEventListener("click", () => {
+            hideDayContainer()
+        });
 
         dayContainer.append(closeBtn);
         wrapper.append(dayContainer);
         renderDay("2025-02-10");
-        
+
     }
 
     const showDayContainer = () => {
@@ -615,7 +668,6 @@ const appFitnessTracker = (containerId, { cssFile = "style.css" }) => {
     showMenuContainer();
     showCurrContainer();
     showTrainings();
-
 
 
     addCss(cssFile)
