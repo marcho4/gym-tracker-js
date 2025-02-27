@@ -1,0 +1,306 @@
+:root {
+    --primary-color: #29339B;
+    --secondary-color: ;
+    --accent-color: #8FCB9B;
+    --accent-hover: #5B9279;
+    --bg-color: #EAE6E5;
+    --text-color: #12130F;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --font: Gill Sans;
+}
+
+body {
+    padding: 25px;
+}
+
+.fitness-tracker {
+    font-family: var(--font), sans-serif;
+    container-type: inline-size;
+    margin: 100px auto;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+
+    grid-auto-rows: auto;
+    align-items: start;
+}
+
+@media (max-width: 1200px) {
+    .fitness-tracker {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 700px) {
+    .fitness-tracker {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.current-training-text,
+.training-text {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.calendar-container,
+.current-training,
+.day-container,
+.menu {
+    background: var(--bg-color);
+    border-radius: 10px;
+    padding: 15px 30px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.calendar-wrapper-inner {
+    min-height: 220px;
+}
+
+.current-training {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 350px;
+    min-height: 250px;
+}
+
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 350px;
+}
+
+.submit-button {
+    padding: 5px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: medium;
+    background: var(--accent-color);
+    border: none;
+    transition: background 0.2s, color 0.2s;
+}
+.submit-button:hover {
+    background-color: var(--accent-hover);
+    color: var(--bg-color);
+}
+
+.input-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.input-label {
+    width: 33%;
+    font-weight: 600;
+}
+.input-field,
+.exercise-select {
+    width: 67%;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.exercise-form {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
+
+.exercise-header-container {
+    justify-items: center;
+    align-items: center;
+}
+.td {
+    text-align: center;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+.arrow-container {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.calendar-caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    color: var(--text-color);
+    font-size: 25px;
+}
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    background: #EAE6E5;
+    border-radius: 10px;
+    padding: 15px 30px 30px 30px;
+    box-shadow: 2px 2px 2px lightgray;
+    min-width: 350px;
+}
+
+.calendar-cell {
+    border-radius: 3px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.calendar-weekday {
+    border-radius: 3px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.arrow-container {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.arrow-icon {
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+
+.workout-day {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+    background-size: 200% 200%;
+    color: white;
+    animation: gradientShift 3s ease infinite;
+    cursor: pointer;
+}
+@keyframes gradientShift {
+    0% {
+        background-position: 0 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0 50%;
+    }
+}
+
+.exercise-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    min-height: 200px;
+}
+
+.exercise-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+.exercise-header-container {
+    text-align: center;
+    font-size: 15px;
+    border: 1px solid #000;
+}
+.exercise-header {
+    border: 1px solid #000;
+    padding: 5px;
+    background: rgba(41, 51, 155, 0.2);
+    color: var(--text-color);
+}
+.exercise-row {
+    border: 1px solid #000;
+    padding: 5px;
+    text-align: center;
+}
+.table-body {
+    overflow-y: auto;
+    max-height: 150px;
+}
+
+.table-container {
+    width: 100%;
+}
+
+
+/* Day container styles  */
+
+.day-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 350px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.day-header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.day-close-button {
+    max-width: max-content;
+    background: var(--primary-color);
+    color: white;
+    padding: 5px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: medium;
+    border: none;
+    transition: background 0.2s, color 0.2s;
+    margin-top: 10px;
+}
+
+.day-close-button:hover {
+    background: var(--secondary-color);
+}
+
+.training {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.day-wrapper {
+    width: 100%;
+}
+
+.day-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.training-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.hidden {
+    display: none;
+}
